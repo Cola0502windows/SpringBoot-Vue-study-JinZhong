@@ -1,0 +1,13 @@
+server:
+  port: # port
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://<ip>:3306/<DataBaseName>
+    username: <username>
+    password: <password>
+  data:
+    redis:
+      host: <ip>
+      port: 6379
+      database: 0
