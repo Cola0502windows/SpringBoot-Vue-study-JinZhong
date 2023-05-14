@@ -122,14 +122,14 @@ public class SecurityConfig {
 
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException, IOException {
         if (request.getRequestURI().endsWith("/login")){
-            response.getWriter().write(JSONObject.toJSONString(Result.ok("operation success")));
+            response.getWriter().write(JSONObject.toJSONString(Result.ok("operation success",null)));
         }else if (request.getRequestURI().endsWith("/logout")){
-            response.getWriter().write(JSONObject.toJSONString(Result.ok("operation success")));
+            response.getWriter().write(JSONObject.toJSONString(Result.ok("operation success",null)));
         }
     }
 
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-        response.getWriter().write(JSONObject.toJSONString(Result.error("operation failure")));
+        response.getWriter().write(JSONObject.toJSONString(Result.error("operation failure",null)));
     }
 
 }

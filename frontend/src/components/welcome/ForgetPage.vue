@@ -94,6 +94,7 @@ const form = reactive({
         password: '',
         password_repeat: '',
         email: '',
+        hasAccount: true,
         code: '',
     }
 )
@@ -140,12 +141,15 @@ const onValidate = (prop,isValidate) => {
     if(prop === 'email') isEmailValidate.value = isValidate
 }
 const sendValidateEmail = () => {
-    post('v1/api/auth/validate-email',{
-            email: form.email
-        },(message)=>{
+    post('/api/v1/auth/sendValidateEmail',{
+            email: form.email,
+            hasAccount: form.hasAccount
+        },(data,message)=>{
             ElMessage.success(message)
             coldEmailTime.value = 60
             setInterval(()=> coldEmailTime.value --,1000)
+        },(message) => {
+            ElMessage.warning(message)
         }
     )
 }

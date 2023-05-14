@@ -80,6 +80,7 @@ const form = reactive({
         password: '',
         password_repeat: '',
         email: '',
+        hasAccount: false,
         code: '',
     }
 )
@@ -152,7 +153,7 @@ const register = () => {
                 password: form.password,
                 email: form.email,
                 code: form.code
-            },(message)=>{
+            },(data,message)=>{
                 ElMessage.success(message)
                 router.push("/")
             })
@@ -163,12 +164,15 @@ const register = () => {
 }
 
 const sendValidateEmail = () => {
-    post('/api/v1/auth/validate-email',{
-            email: form.email
-        },(message)=>{
+    post('/api/v1/auth/sendValidateEmail',{
+            email: form.email,
+            hasAccount: form.hasAccount
+        },(data,message)=>{
             ElMessage.success(message)
             coldEmailTime.value = 60
             setInterval(()=> coldEmailTime.value --,1000)
+        },(message) => {
+            ElMessage.warning(message)
         }
     )
 }

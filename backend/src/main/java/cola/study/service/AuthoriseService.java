@@ -13,5 +13,8 @@ public interface AuthoriseService extends UserDetailsService {
 
     Result<String> sendValidateEmail(String email, String sessionId, boolean hasAccount);
 
-    Result<String> validateAndRegister(String username, String password, String email, String code,String sessionId);
+    Result<String> validateAndRegister(String username, String password, String email, String code, String sessionId);
+
+    Result<String> startReset(String email, String code,String sessionId,boolean hasAccount);
+
 }

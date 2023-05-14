@@ -65,7 +65,7 @@ const login = () =>{
             username: form.username,
             password: form.password,
             remember: form.remember
-        },(message)=>{
+        },(data,message)=>{
             ElMessage.success(message)
             router.push('/index')
         },(message) => {

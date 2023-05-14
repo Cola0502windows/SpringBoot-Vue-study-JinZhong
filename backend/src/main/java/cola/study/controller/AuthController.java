@@ -32,33 +32,36 @@ public class AuthController {
     private final String EMAIL_REGEX = "^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$";
     private final String USERNAME_REGEX = "^((?!\\\\|\\/|:|\\*|\\?|<|>|\\||'|%|@|#|&|\\$|\\^|&|\\*).){1,8}$";
 
-    @Operation(summary = "login")
+    @Operation(summary = "login",description = "登录")
     @PostMapping("login")
     public Result<String> login(User user){
         log.info("user: {}",user);
-        return Result.ok("登录成功");
+        return Result.ok("login success",null);
     }
 
-    @Operation(summary = "logout")
+    @Operation(summary = "logout",description = "退出登录")
     @PostMapping("logout")
     public Result<String> logout(){
-        return Result.ok("退出成功");
+        return Result.ok("logout success",null);
     }
 
-    @Operation(summary = "validate")
-    @PostMapping("validate-email")
+    @Operation(summary = "validate",description = "发送 email 验证码")
+    @PostMapping("sendValidateEmail")
     public Result<String> sendValidateEmail(
             @Pattern(regexp = EMAIL_REGEX)
-            @RequestParam("email") String email,
+            @RequestParam("email")
+            String email,
+            @RequestParam("hasAccount")
+            Boolean hasAccount,
             HttpSession httpSession){
         if (authoriseService.sendValidateEmail
-                (email, httpSession.getId(),false).getCode() == 200) {
-            return Result.ok(null);
+                (email, httpSession.getId(),hasAccount).getCode() == 200) {
+            return Result.ok("email send success",null);
         }else {
-            return Result.error();
+            return Result.error("email send failure",null);
         }
     }
-    @Operation(summary = "register")
+    @Operation(summary = "register",description = "注册用户 ")
     @PostMapping("register")
     public Result<String> register(
             @Pattern(regexp = USERNAME_REGEX)
@@ -74,8 +77,24 @@ public class AuthController {
     ){
         if (authoriseService.validateAndRegister
                 (username,password,email,code,httpSession.getId()).getCode() == 200){
-            return Result.ok(null);
+            return Result.ok("register failure",null);
         }
         return Result.error();
 }
+
+    @PostMapping("/start-reset")
+    public Result<String> startReset(
+            @Pattern(regexp = EMAIL_REGEX)
+            @RequestParam("email") String email,
+            @Length(min = 6,max = 6)
+            @RequestParam("code") String code,
+            HttpSession httpSession
+    ){
+        if (authoriseService.startReset(email, code,httpSession.getId(),true).getCode() == 200) {
+            httpSession.setAttribute("reset-email",email);
+            return Result.ok("reset success",null);
+        }else {
+            return Result.error("reset failure",null);
+        }
+    }
 }

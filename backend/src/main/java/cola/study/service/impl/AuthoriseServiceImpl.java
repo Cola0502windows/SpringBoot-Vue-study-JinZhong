@@ -66,13 +66,13 @@ public class AuthoriseServiceImpl implements AuthoriseService {
         if (Boolean.TRUE.equals(stringRedisTemplate.hasKey(key))) {
             Long expire = Optional.ofNullable(stringRedisTemplate.getExpire(key, TimeUnit.SECONDS)).orElse(0L);
             if (expire > 120) {
-                return Result.error("请 60s 后再试 please 60s try again");
+                return Result.error("请 60s 后再试 please 60s try again",null);
             }
         }
         User user = userMapper.findByUserEmail(email);
 
-        if ( hasAccount && user == null) return Result.error("该邮箱未被注册 email was new");
-        if ( !hasAccount && user != null) return Result.error("该邮箱已经被注册 email was be used");
+        if ( hasAccount && user == null) return Result.error("该邮箱未被注册 email was new",null);
+        if ( !hasAccount && user != null) return Result.error("该邮箱已经被注册 email was be used",null);
 
         Random random = new Random();
         int code = random.nextInt(899999) + 100000;
@@ -86,12 +86,12 @@ public class AuthoriseServiceImpl implements AuthoriseService {
             mailSender.send(simpleMailMessage);
             stringRedisTemplate.opsForValue().set(key, String.valueOf(code), 3, TimeUnit.MINUTES);
 
-            return Result.ok("邮箱发送成功 email send success");
+            return Result.ok("邮箱发送成功 email send success",null);
         } catch (MailException e) {
             if (log.isDebugEnabled()) {
                 log.debug("邮件发送失败 email send failure");
             }
-            return Result.error("发送失败 email send failure");
+            return Result.error("发送失败 email send failure",null);
         }
         /*
           1. 先生成对应的验证码
@@ -109,15 +109,31 @@ public class AuthoriseServiceImpl implements AuthoriseService {
         if (Boolean.TRUE.equals(stringRedisTemplate.hasKey(key))) {
             String redis_code = stringRedisTemplate.opsForValue().get(key);
             if(redis_code == null){
-                return Result.error("请先获取验证码 please get a code first");
+                return Result.error("请先获取验证码 please get a code first",null);
             } else if (redis_code.equals(code)) {
                 password = encoder.encode(password);
                 stringRedisTemplate.delete(key);
                 if (userMapper.saveUser(username,password,email) > 0){
-                    return Result.ok("注册成功 register success");
+                    return Result.ok("注册成功 register success",null);
                 }else {
-                    return Result.error("注册失败 register failure");
+                    return Result.error("注册失败 register failure",null);
                 }
+            }
+        }
+        return Result.error();
+    }
+
+    @Override
+    public Result<String> startReset(String email, String code, String sessionId, boolean hasAccount) {
+        String key = "email:" + sessionId + ":" + email+":true";
+
+        if (Boolean.TRUE.equals(stringRedisTemplate.hasKey(key))) {
+            String redis_code = stringRedisTemplate.opsForValue().get(key);
+            if(redis_code == null){
+                return Result.error("请先获取验证码 please get a code first",null);
+            } else if (redis_code.equals(code)) {
+                stringRedisTemplate.delete(key);
+                return Result.ok("重置密码成功 Reset password success",null);
             }
         }
         return Result.error();
