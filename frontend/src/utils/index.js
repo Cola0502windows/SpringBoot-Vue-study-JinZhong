@@ -13,10 +13,10 @@ function post(url,data,success,failure = defaultFailure,error = defaultError){
         /*请求携带 Cookie */
         withCredentials: true
     }).then(({data}) =>{
-        if (data.success)
-            success(data.data, data.code)
-        else
-            failure(data.data,data.code)
+        if (data.code === 200)
+            success(data.data, data.message)
+        else if (data.code !== 200)
+            failure(data.message)
     }).catch(error)
 }
 
@@ -25,10 +25,10 @@ function get(url,success,failure = defaultFailure,error = defaultError){
         /*请求携带 Cookie */
         withCredentials: true
     }).then(({data}) =>{
-        if (data.success)
-            success(data.data, data.code)
-        else
-            failure(data.data,data.code)
+        if (data.code === 200)
+            success(data.data, data.message)
+        else if (data.code !== 200)
+            failure(data.message)
     }).catch(error)
 }
 

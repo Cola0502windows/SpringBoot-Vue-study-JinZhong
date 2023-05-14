@@ -61,15 +61,15 @@ const login = () =>{
     if(!form.username || !form.password){
         ElMessage.warning("请输入用户名和密码")
     }else {
-        post('/v1/api/auth/login',{
+        post('/api/v1/auth/login',{
             username: form.username,
             password: form.password,
             remember: form.remember
         },(message)=>{
-
-            console.log(message)
             ElMessage.success(message)
             router.push('/index')
+        },(message) => {
+            ElMessage.error(message)
         })
     }
 }

@@ -24,7 +24,7 @@ public class Result<T> {
     public static <T> Result<T> ok(T data) {
         Result<T> result = new Result<>();
         result.setCode(200);
-        result.setMessage("操作成功");
+        result.setMessage("ok");
         result.setData(data);
         return result;
     }
@@ -40,14 +40,14 @@ public class Result<T> {
     public static Result<Void> ok() {
         Result<Void> result = new Result<>();
         result.setCode(200);
-        result.setMessage("操作成功");
+        result.setMessage("ok");
         return result;
     }
 
     public static Result<Void> error() {
         Result<Void> result = new Result<>();
         result.setCode(500);
-        result.setMessage("操作失败");
+        result.setMessage("error");
         return result;
     }
 

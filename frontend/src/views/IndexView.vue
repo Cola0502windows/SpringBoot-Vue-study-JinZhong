@@ -15,7 +15,7 @@ import {ElMessage} from "element-plus";
 import router from "@/router";
 
 const logout = () =>{
-    get('/v1/api/auth/logout',(message)=>{
+    get('/api/v1/auth/logout',(message)=>{
         ElMessage.success(message)
         router.push('/')
     })
