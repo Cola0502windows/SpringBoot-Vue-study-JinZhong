@@ -2,6 +2,8 @@ package cola.study.service.impl;
 
 import cola.study.entity.Result;
 import cola.study.entity.User;
+import cola.study.enums.ErrorCode;
+import cola.study.exception.ColaException;
 import cola.study.mapper.UserMapper;
 import cola.study.service.AuthoriseService;
 import jakarta.annotation.Resource;
@@ -66,13 +68,13 @@ public class AuthoriseServiceImpl implements AuthoriseService {
         if (Boolean.TRUE.equals(stringRedisTemplate.hasKey(key))) {
             Long expire = Optional.ofNullable(stringRedisTemplate.getExpire(key, TimeUnit.SECONDS)).orElse(0L);
             if (expire > 120) {
-                return Result.error("请 60s 后再试 please 60s try again",null);
+                throw new ColaException(ErrorCode.EMAIL_SEND_60S);
             }
         }
         User user = userMapper.findByUserEmail(email);
 
-        if ( hasAccount && user == null) return Result.error("该邮箱未被注册 email was new",null);
-        if ( !hasAccount && user != null) return Result.error("该邮箱已经被注册 email was be used",null);
+        if ( hasAccount && user == null) throw new ColaException(ErrorCode.EMAIL_IS_NEW);
+        if ( !hasAccount && user != null)throw new ColaException(ErrorCode.EMAIL_WAS_REGISTERED);
 
         Random random = new Random();
         int code = random.nextInt(899999) + 100000;
@@ -85,13 +87,12 @@ public class AuthoriseServiceImpl implements AuthoriseService {
         try {
             mailSender.send(simpleMailMessage);
             stringRedisTemplate.opsForValue().set(key, String.valueOf(code), 3, TimeUnit.MINUTES);
-
-            return Result.ok("邮箱发送成功 email send success",null);
+            return Result.ok(null);
         } catch (MailException e) {
             if (log.isDebugEnabled()) {
-                log.debug("邮件发送失败 email send failure");
+                log.debug("邮件发送失败");
             }
-            return Result.error("发送失败 email send failure",null);
+            throw new ColaException(ErrorCode.EMAIL_SEND_FAILURE);
         }
         /*
           1. 先生成对应的验证码
@@ -109,14 +110,14 @@ public class AuthoriseServiceImpl implements AuthoriseService {
         if (Boolean.TRUE.equals(stringRedisTemplate.hasKey(key))) {
             String redis_code = stringRedisTemplate.opsForValue().get(key);
             if(redis_code == null){
-                return Result.error("请先获取验证码 please get a code first",null);
+                throw new ColaException(ErrorCode.EMAIL_MUST_NEED);
             } else if (redis_code.equals(code)) {
                 password = encoder.encode(password);
                 stringRedisTemplate.delete(key);
                 if (userMapper.saveUser(username,password,email) > 0){
-                    return Result.ok("注册成功 register success",null);
+                    return Result.ok(null);
                 }else {
-                    return Result.error("注册失败 register failure",null);
+                    throw new ColaException(ErrorCode.REGISTER_FAILURE);
                 }
             }
         }
@@ -130,10 +131,10 @@ public class AuthoriseServiceImpl implements AuthoriseService {
         if (Boolean.TRUE.equals(stringRedisTemplate.hasKey(key))) {
             String redis_code = stringRedisTemplate.opsForValue().get(key);
             if(redis_code == null){
-                return Result.error("请先获取验证码 please get a code first",null);
+                throw new ColaException(ErrorCode.EMAIL_MUST_NEED);
             } else if (redis_code.equals(code)) {
                 stringRedisTemplate.delete(key);
-                return Result.ok("重置密码成功 Reset password success",null);
+                return Result.ok(null);
             }
         }
         return Result.error();

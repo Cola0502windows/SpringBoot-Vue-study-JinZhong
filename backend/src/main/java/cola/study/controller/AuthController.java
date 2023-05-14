@@ -36,13 +36,13 @@ public class AuthController {
     @PostMapping("login")
     public Result<String> login(User user){
         log.info("user: {}",user);
-        return Result.ok("login success",null);
+        return Result.ok("登录成功",null);
     }
 
     @Operation(summary = "logout",description = "退出登录")
     @PostMapping("logout")
     public Result<String> logout(){
-        return Result.ok("logout success",null);
+        return Result.ok("退出成功",null);
     }
 
     @Operation(summary = "validate",description = "发送 email 验证码")
@@ -56,9 +56,9 @@ public class AuthController {
             HttpSession httpSession){
         if (authoriseService.sendValidateEmail
                 (email, httpSession.getId(),hasAccount).getCode() == 200) {
-            return Result.ok("email send success",null);
+            return Result.ok("邮箱发送成功",null);
         }else {
-            return Result.error("email send failure",null);
+            return Result.error("邮箱发送失败",null);
         }
     }
     @Operation(summary = "register",description = "注册用户 ")
@@ -77,7 +77,7 @@ public class AuthController {
     ){
         if (authoriseService.validateAndRegister
                 (username,password,email,code,httpSession.getId()).getCode() == 200){
-            return Result.ok("register failure",null);
+            return Result.ok("注册成功",null);
         }
         return Result.error();
 }
@@ -92,9 +92,9 @@ public class AuthController {
     ){
         if (authoriseService.startReset(email, code,httpSession.getId(),true).getCode() == 200) {
             httpSession.setAttribute("reset-email",email);
-            return Result.ok("reset success",null);
+            return Result.ok("密码重置成功",null);
         }else {
-            return Result.error("reset failure",null);
+            return Result.error("密码重置失败",null);
         }
     }
 }

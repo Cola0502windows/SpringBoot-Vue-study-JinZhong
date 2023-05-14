@@ -7,6 +7,7 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,6 +26,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import javax.sql.DataSource;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author Cola0502-JinZhong
@@ -35,6 +37,7 @@ import java.io.IOException;
 
 @Configuration
 @EnableWebSecurity
+@Slf4j
 public class SecurityConfig {
 
     @Resource
@@ -121,15 +124,26 @@ public class SecurityConfig {
     }
 
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException, IOException {
+        response.setCharacterEncoding(String.valueOf(StandardCharsets.UTF_8));
         if (request.getRequestURI().endsWith("/login")){
-            response.getWriter().write(JSONObject.toJSONString(Result.ok("operation success",null)));
+            response.getWriter().write(JSONObject.toJSONString(Result.ok("登录成功",null)));
+            if (log.isDebugEnabled()) {
+                log.debug("onAuthenticationSuccess--login");
+            }
         }else if (request.getRequestURI().endsWith("/logout")){
-            response.getWriter().write(JSONObject.toJSONString(Result.ok("operation success",null)));
+            response.getWriter().write(JSONObject.toJSONString(Result.ok("退出成功",null)));
+            if (log.isDebugEnabled()) {
+                log.debug("onAuthenticationSuccess--logout");
+            }
         }
     }
 
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-        response.getWriter().write(JSONObject.toJSONString(Result.error("operation failure",null)));
+        response.setCharacterEncoding(String.valueOf(StandardCharsets.UTF_8));
+        response.getWriter().write(JSONObject.toJSONString(Result.error("登录失败",null)));
+        if (log.isDebugEnabled()) {
+            log.debug("onAuthenticationFailure");
+        }
     }
 
 }
