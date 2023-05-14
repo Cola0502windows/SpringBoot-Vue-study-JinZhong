@@ -147,7 +147,7 @@ const onValidate = (prop,isValidate) => {
 const register = () => {
     formRef.value.validate((isValidate)=> {
         if (isValidate){
-            post('v1/api/auth/register',{
+            post('/api/v1/auth/register',{
                 username: form.username,
                 password: form.password,
                 email: form.email,
@@ -163,7 +163,7 @@ const register = () => {
 }
 
 const sendValidateEmail = () => {
-    post('v1/api/auth/validate-email',{
+    post('/api/v1/auth/validate-email',{
             email: form.email
         },(message)=>{
             ElMessage.success(message)

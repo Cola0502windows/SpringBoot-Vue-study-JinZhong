@@ -1,6 +1,7 @@
 package cola.study.mapper;
 
 import cola.study.entity.User;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -19,8 +20,14 @@ public interface UserMapper {
     User findByID(Long id);
     @Select("SELECT * FROM sys_user WHERE username = #{username}")
     User findByUserName(String username);
+
+    @Select("SELECT * FROM sys_user WHERE email = #{email}")
+    User findByUserEmail(String email);
     @Select("SELECT * FROM sys_user")
     List<User> findAll();
+
+    @Insert("INSERT into sys_user (username,password,email) VALUES (#{username},#{password},#{email})")
+    Integer saveUser(String username,String password,String email);
 
 
 }
