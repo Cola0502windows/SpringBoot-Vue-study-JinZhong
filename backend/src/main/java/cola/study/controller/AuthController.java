@@ -3,6 +3,8 @@ package cola.study.controller;
 import cola.study.entity.Result;
 import cola.study.entity.User;
 import cola.study.service.AuthoriseService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.constraints.Pattern;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @description: AuthController
  * @date 2023/5/14 9:29
  */
+@Tag(name = "AuthController")
 @RestController
 @Slf4j
 @RequestMapping("/api/v1/auth")
@@ -29,18 +32,20 @@ public class AuthController {
     private final String EMAIL_REGEX = "^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$";
     private final String USERNAME_REGEX = "^((?!\\\\|\\/|:|\\*|\\?|<|>|\\||'|%|@|#|&|\\$|\\^|&|\\*).){1,8}$";
 
+    @Operation(summary = "login")
     @PostMapping("login")
     public Result<String> login(User user){
         log.info("user: {}",user);
         return Result.ok("登录成功");
     }
 
+    @Operation(summary = "logout")
     @PostMapping("logout")
     public Result<String> logout(){
         return Result.ok("退出成功");
     }
 
-
+    @Operation(summary = "validate")
     @PostMapping("validate-email")
     public Result<String> sendValidateEmail(
             @Pattern(regexp = EMAIL_REGEX)
@@ -53,7 +58,7 @@ public class AuthController {
             return Result.error();
         }
     }
-
+    @Operation(summary = "register")
     @PostMapping("register")
     public Result<String> register(
             @Pattern(regexp = USERNAME_REGEX)
