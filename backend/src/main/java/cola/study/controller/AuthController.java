@@ -92,9 +92,23 @@ public class AuthController {
     ){
         if (authoriseService.startReset(email, code,httpSession.getId(),true).getCode() == 200) {
             httpSession.setAttribute("reset-email",email);
-            return Result.ok("密码重置成功",null);
+            return Result.ok("开始重置密码",null);
         }else {
-            return Result.error("密码重置失败",null);
+            return Result.error("开始重置失败",null);
+        }
+    }
+
+    @PostMapping("/resetPwd")
+    public Result<String> resetPwd(
+            @Pattern(regexp = EMAIL_REGEX)
+            @RequestParam("email") String email,
+            @Length(min = 6,max = 16)
+            @RequestParam("password") String password
+    ){
+        if (authoriseService.resetPwd(password, email).getCode() == 200) {
+            return Result.ok("重置成功",null);
+        }else {
+            return Result.error("重置失败",null);
         }
     }
 }

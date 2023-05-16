@@ -63,7 +63,7 @@ public class AuthoriseServiceImpl implements AuthoriseService {
 
     @Override
     public Result<String> sendValidateEmail(String email, String sessionId, boolean hasAccount) {
-        String key = "email:" + sessionId + ":" + email + ":" +hasAccount;
+        String key = "email:" + sessionId + ":" + email + ":" + hasAccount;
 
         if (Boolean.TRUE.equals(stringRedisTemplate.hasKey(key))) {
             Long expire = Optional.ofNullable(stringRedisTemplate.getExpire(key, TimeUnit.SECONDS)).orElse(0L);
@@ -73,8 +73,8 @@ public class AuthoriseServiceImpl implements AuthoriseService {
         }
         User user = userMapper.findByUserEmail(email);
 
-        if ( hasAccount && user == null) throw new ColaException(ErrorCode.EMAIL_IS_NEW);
-        if ( !hasAccount && user != null)throw new ColaException(ErrorCode.EMAIL_WAS_REGISTERED);
+        if (hasAccount && user == null) throw new ColaException(ErrorCode.EMAIL_IS_NEW);
+        if (!hasAccount && user != null) throw new ColaException(ErrorCode.EMAIL_WAS_REGISTERED);
 
         Random random = new Random();
         int code = random.nextInt(899999) + 100000;
@@ -105,18 +105,18 @@ public class AuthoriseServiceImpl implements AuthoriseService {
 
     @Override
     public Result<String> validateAndRegister(String username, String password, String email, String code, String sessionId) {
-        String key = "email:" + sessionId + ":" + email+":false";
+        String key = "email:" + sessionId + ":" + email + ":false";
 
         if (Boolean.TRUE.equals(stringRedisTemplate.hasKey(key))) {
             String redis_code = stringRedisTemplate.opsForValue().get(key);
-            if(redis_code == null){
+            if (redis_code == null) {
                 throw new ColaException(ErrorCode.EMAIL_MUST_NEED);
             } else if (redis_code.equals(code)) {
                 password = encoder.encode(password);
                 stringRedisTemplate.delete(key);
-                if (userMapper.saveUser(username,password,email) > 0){
+                if (userMapper.saveUser(username, password, email) > 0) {
                     return Result.ok(null);
-                }else {
+                } else {
                     throw new ColaException(ErrorCode.REGISTER_FAILURE);
                 }
             }
@@ -126,17 +126,28 @@ public class AuthoriseServiceImpl implements AuthoriseService {
 
     @Override
     public Result<String> startReset(String email, String code, String sessionId, boolean hasAccount) {
-        String key = "email:" + sessionId + ":" + email+":true";
+        String key = "email:" + sessionId + ":" + email + ":true";
 
         if (Boolean.TRUE.equals(stringRedisTemplate.hasKey(key))) {
             String redis_code = stringRedisTemplate.opsForValue().get(key);
-            if(redis_code == null){
+            if (redis_code == null) {
                 throw new ColaException(ErrorCode.EMAIL_MUST_NEED);
             } else if (redis_code.equals(code)) {
+
                 stringRedisTemplate.delete(key);
                 return Result.ok(null);
             }
         }
         return Result.error();
+    }
+
+    @Override
+    public Result<String> resetPwd(String password, String email) {
+        password = encoder.encode(password);
+        if (userMapper.resetPwd(password, email) > 0){
+            return Result.ok("密码重置成功", null);
+        }else {
+            return Result.error("密码重置失败", null);
+        }
     }
 }

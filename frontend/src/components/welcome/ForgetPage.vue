@@ -40,7 +40,7 @@
                     </el-form-item>
                 </el-form>
                 <div style="margin-top: 70px">
-                    <el-button @click="active=1" style="width: 270px" type="danger">开始重置密码</el-button>
+                    <el-button @click="startReset()" style="width: 270px" type="danger">开始重置密码</el-button>
                 </div>
             </div>
         </transition>
@@ -69,7 +69,7 @@
                 </el-form>
 
                 <div style="margin-top: 70px">
-                    <el-button @click="active=1" style="width: 270px" type="warning">立即重置密码</el-button>
+                    <el-button @click="resetPwd()" style="width: 270px" type="warning">立即重置密码</el-button>
                 </div>
             </div>
         </transition>
@@ -84,6 +84,7 @@ import {reactive, ref} from "vue";
 import {EditPen, Lock, Message} from "@element-plus/icons-vue";
 import {post} from "@/utils";
 import {ElMessage} from "element-plus";
+import router from "@/router";
 
 const formRef = ref()
 const isEmailValidate = ref(false)
@@ -148,6 +149,33 @@ const sendValidateEmail = () => {
             ElMessage.success(message)
             coldEmailTime.value = 60
             setInterval(()=> coldEmailTime.value --,1000)
+        },(message) => {
+            ElMessage.warning(message)
+        }
+    )
+}
+
+const  startReset = () => {
+    post('/api/v1/auth/start-reset',{
+            email: form.email,
+            code: form.code,
+            hasAccount: form.hasAccount
+        },(data,_)=>{
+            active.value = 1
+        },(message) => {
+            ElMessage.warning(message)
+        }
+    )
+}
+
+const  resetPwd = () => {
+    post('/api/v1/auth/resetPwd',{
+            email: form.email,
+            password: form.password,
+        },(data,message)=>{
+        ElMessage.success(message)
+        router.push('/')
+        active.value = 2
         },(message) => {
             ElMessage.warning(message)
         }

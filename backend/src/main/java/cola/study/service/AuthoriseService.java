@@ -17,4 +17,6 @@ public interface AuthoriseService extends UserDetailsService {
 
     Result<String> startReset(String email, String code,String sessionId,boolean hasAccount);
 
+    Result<String> resetPwd(String password,String email);
+
 }

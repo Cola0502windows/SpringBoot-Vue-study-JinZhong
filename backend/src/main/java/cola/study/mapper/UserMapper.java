@@ -4,6 +4,7 @@ import cola.study.entity.User;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -29,5 +30,7 @@ public interface UserMapper {
     @Insert("INSERT into sys_user (username,password,email) VALUES (#{username},#{password},#{email})")
     Integer saveUser(String username,String password,String email);
 
+    @Update("UPDATE sys_user SET password = #{password} WHERE email = #{email}")
+    Integer resetPwd(String password,String email);
 
 }
